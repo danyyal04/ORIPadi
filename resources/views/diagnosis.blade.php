@@ -11,7 +11,7 @@
         <div
             class="inline-flex items-center gap-2 bg-white/70 border border-forest-300 backdrop-blur-md text-forest-800 text-xs font-bold px-4 py-2 rounded-full mb-6 shadow-sm hover:shadow transition-shadow">
             <span class="w-2 h-2 bg-forest-500 rounded-full animate-pulse-slow inline-block"></span>
-            Powered by Gemini 2.0 Flash API
+            Powered by Gemini 2.5 Flash API
         </div>
         <h1
             class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-forest-900 tracking-tighter leading-[1.1] mb-5 drop-shadow-sm">

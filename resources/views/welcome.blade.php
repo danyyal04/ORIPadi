@@ -66,7 +66,7 @@
                 <div
                     class="inline-flex items-center gap-2 bg-forest-100 border border-forest-200 text-forest-700 text-xs font-bold px-4 py-1.5 rounded-full mb-6 w-fit shadow-sm">
                     <span class="w-1.5 h-1.5 bg-forest-500 rounded-full animate-pulse"></span>
-                    <span data-i18n="badge">Powered by Gemini 2.0 Flash AI</span>
+                    <span data-i18n="badge">Powered by Gemini 2.5 Flash AI</span>
                 </div>
 
                 {{-- Headline --}}
@@ -271,7 +271,7 @@
         // ─── i18n dictionary ───────────────────────────────────────────────
         const landingI18n = {
             en: {
-                badge: 'Powered by Gemini 2.0 Flash AI',
+                badge: 'Powered by Gemini 2.5 Flash AI',
                 hero_line1: 'Protect Your',
                 hero_line2: 'Paddy Crop',
                 hero_line3: 'with AI',
@@ -300,7 +300,7 @@
                 footer_text: 'A public tool for Malaysian rice farmers',
             },
             ms: {
-                badge: 'Dikuasakan oleh Gemini 2.0 Flash AI',
+                badge: 'Dikuasakan oleh Gemini 2.5 Flash AI',
                 hero_line1: 'Lindungi',
                 hero_line2: 'Tanaman Padi',
                 hero_line3: 'dengan AI',

@@ -72,8 +72,8 @@ Respond ONLY with valid JSON in this exact structure (no markdown, no code block
   \"additional_notes_ms\": \"Nota tambahan dalam Bahasa Melayu...\"
 }";
 
-            // Use GEMINI_MODEL env var or default to gemini-2.0-flash
-            $model = config('services.gemini.model', 'gemini-2.0-flash');
+            // Use GEMINI_MODEL env var or default to gemini-2.5-flash
+            $model = config('services.gemini.model', 'gemini-2.5-flash');
 
             $response = Http::timeout(60)->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
