@@ -371,6 +371,11 @@ function applyLanguage(lang) {
     // Update toggle button label
     const label = document.getElementById('langToggleLabel');
     if (label) label.textContent = lang === 'ms' ? 'EN' : 'BM';
+
+    // If there's an active AI result, re-render it in the new language!
+    if (typeof currentResult !== 'undefined' && currentResult) {
+        renderResult(currentResult);
+    }
 }
 
 window.toggleLanguage = function () {
@@ -541,17 +546,29 @@ async function analyzeImage() {
 }
 
 function renderResult(d) {
-    document.getElementById('diseaseName').textContent  = d.disease_name   || 'Tidak Diketahui';
-    document.getElementById('confidence').textContent   = (d.confidence || 0) + '%';
-    document.getElementById('reasoning').textContent    = d.reasoning        || '—';
-    document.getElementById('interventionWater').textContent      = d.intervention_water      || '—';
-    document.getElementById('interventionFertilizer').textContent = d.intervention_fertilizer || '—';
-    document.getElementById('interventionTreatment').textContent  = d.intervention_treatment  || '—';
+    const lang = currentLang; // 'ms' or 'en'
+    
+    document.getElementById('diseaseName').textContent            = d[`disease_name_${lang}`] || 'Tidak Diketahui';
+    document.getElementById('confidence').textContent             = (d.confidence || 0) + '%';
+    document.getElementById('reasoning').textContent              = d[`reasoning_${lang}`] || '—';
+    document.getElementById('interventionWater').textContent      = d[`intervention_water_${lang}`] || '—';
+    document.getElementById('interventionFertilizer').textContent = d[`intervention_fertilizer_${lang}`] || '—';
+    document.getElementById('interventionTreatment').textContent  = d[`intervention_treatment_${lang}`] || '—';
 
     // Severity badge
     const badge    = document.getElementById('severityBadge');
     const severity = (d.severity || 'unknown').toLowerCase();
-    badge.textContent = d.severity || '—';
+    
+    // Set text based on language
+    let severityText = d.severity || '—';
+    if (lang === 'ms') {
+        if (severity === 'healthy') severityText = 'Sihat';
+        else if (severity === 'low') severityText = 'Rendah';
+        else if (severity === 'moderate') severityText = 'Sederhana';
+        else if (severity === 'high') severityText = 'Tinggi';
+    }
+    badge.textContent = severityText;
+    
     badge.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full ';
     if      (severity === 'healthy')  badge.className += 'badge-healthy';
     else if (severity === 'low')      badge.className += 'badge-low';
@@ -559,15 +576,19 @@ function renderResult(d) {
     else                              badge.className += 'badge-high';
 
     // Resource Optimization
-    if (d.resource_optimization) {
-        document.getElementById('resourceOptimization').textContent = d.resource_optimization;
+    if (d[`resource_optimization_${lang}`]) {
+        document.getElementById('resourceOptimization').textContent = d[`resource_optimization_${lang}`];
         document.getElementById('resourceOptimizationCard').classList.remove('hidden');
+    } else {
+        document.getElementById('resourceOptimizationCard').classList.add('hidden');
     }
 
     // Additional notes
-    if (d.additional_notes) {
-        document.getElementById('additionalNotes').textContent = d.additional_notes;
+    if (d[`additional_notes_${lang}`]) {
+        document.getElementById('additionalNotes').textContent = d[`additional_notes_${lang}`];
         document.getElementById('additionalNotesCard').classList.remove('hidden');
+    } else {
+        document.getElementById('additionalNotesCard').classList.add('hidden');
     }
 
     hideAll();
@@ -575,9 +596,10 @@ function renderResult(d) {
 
     // ── Reset analyze button back to ready state ──
     analyzeBtn.disabled = false;
+    const reanalyzeText = lang === 'en' ? 'Analyze Again' : 'Analisis Semula';
     analyzeBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/>
-    </svg> Analisis Semula`;
+    </svg> ${reanalyzeText}`;
 }
 
 // =====================================================================
@@ -585,7 +607,22 @@ function renderResult(d) {
 // =====================================================================
 function downloadPDF() {
     if (!currentResult) return;
-    const params = new URLSearchParams({ ...currentResult });
+    
+    // Map the current language's results to the standard keys the PDF expects
+    const lang = currentLang;
+    const pdfData = {
+        disease_name: currentResult[`disease_name_${lang}`] || 'Unknown',
+        confidence: currentResult.confidence,
+        severity: currentResult.severity,
+        reasoning: currentResult[`reasoning_${lang}`] || '',
+        intervention_water: currentResult[`intervention_water_${lang}`] || '',
+        intervention_fertilizer: currentResult[`intervention_fertilizer_${lang}`] || '',
+        intervention_treatment: currentResult[`intervention_treatment_${lang}`] || '',
+        resource_optimization: currentResult[`resource_optimization_${lang}`] || '',
+        additional_notes: currentResult[`additional_notes_${lang}`] || '',
+    };
+    
+    const params = new URLSearchParams(pdfData);
     window.location.href = '{{ route("download.pdf") }}?' + params.toString();
 }
 

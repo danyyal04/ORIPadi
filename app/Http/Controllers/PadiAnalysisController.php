@@ -31,11 +31,6 @@ class PadiAnalysisController extends Controller
             $imageData = base64_encode(file_get_contents($imageFile->getRealPath()));
             $mimeType  = $imageFile->getMimeType();
 
-            $lang = $request->input('lang', 'ms');
-            $languageInstruction = ($lang === 'en')
-                ? "IMPORTANT: You MUST write your reasoning, intervention steps, resource optimization, and notes entirely in English."
-                : "IMPORTANT: You MUST write your reasoning, intervention steps, resource optimization, and notes entirely in Bahasa Melayu.";
-
             // Build voice context addon if provided
             $voiceContext = '';
             if ($request->filled('voice_context')) {
@@ -55,19 +50,26 @@ Analyze this padi leaf image carefully. Perform the following tasks:
 5. Provide a Resource Optimization strategy (how to avoid wastage of water, fertilizer, or money based on the diagnosis).
 {$voiceContext}
 
-{$languageInstruction}
+IMPORTANT: You MUST provide your answers in BOTH English and Bahasa Melayu.
 
-IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no code blocks):
+Respond ONLY with valid JSON in this exact structure (no markdown, no code blocks):
 {
-  \"disease_name\": \"Name of disease in English (Nama dalam Bahasa Melayu)\",
+  \"disease_name_en\": \"Name of disease in English\",
+  \"disease_name_ms\": \"Nama penyakit dalam Bahasa Melayu\",
   \"confidence\": 85,
   \"severity\": \"Low|Moderate|High|Healthy\",
-  \"reasoning\": \"Detailed visual reasoning...\",
-  \"intervention_water\": \"Specific water management advice...\",
-  \"intervention_fertilizer\": \"Specific fertilizer advice...\",
-  \"intervention_treatment\": \"Specific treatment/pesticide advice...\",
-  \"resource_optimization\": \"Specific actionable advice on saving resources...\",
-  \"additional_notes\": \"Any extra advice for Malaysian farmers...\"
+  \"reasoning_en\": \"Detailed visual reasoning in English...\",
+  \"reasoning_ms\": \"Penaakulan visual terperinci dalam Bahasa Melayu...\",
+  \"intervention_water_en\": \"Water management advice in English...\",
+  \"intervention_water_ms\": \"Nasihat pengairan dalam Bahasa Melayu...\",
+  \"intervention_fertilizer_en\": \"Fertilizer advice in English...\",
+  \"intervention_fertilizer_ms\": \"Nasihat baja dalam Bahasa Melayu...\",
+  \"intervention_treatment_en\": \"Treatment advice in English...\",
+  \"intervention_treatment_ms\": \"Nasihat rawatan dalam Bahasa Melayu...\",
+  \"resource_optimization_en\": \"Resource optimization in English...\",
+  \"resource_optimization_ms\": \"Pengoptimuman sumber dalam Bahasa Melayu...\",
+  \"additional_notes_en\": \"Extra advice in English...\",
+  \"additional_notes_ms\": \"Nota tambahan dalam Bahasa Melayu...\"
 }";
 
             // Use GEMINI_MODEL env var or default to gemini-2.0-flash
@@ -126,27 +128,23 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 // JSON truly failed — parse what we can from the raw text
-                // Try to extract key fields with regex as last resort
-                preg_match('/"disease_name"\s*:\s*"([^"]+)"/', $rawText, $dn);
-                preg_match('/"confidence"\s*:\s*(\d+)/',         $rawText, $cf);
-                preg_match('/"severity"\s*:\s*"([^"]+)"/',      $rawText, $sv);
-                preg_match('/"reasoning"\s*:\s*"([^"]+)"/',     $rawText, $rs);
-                preg_match('/"intervention_water"\s*:\s*"([^"]+)"/',      $rawText, $iw);
-                preg_match('/"intervention_fertilizer"\s*:\s*"([^"]+)"/', $rawText, $if_);
-                preg_match('/"intervention_treatment"\s*:\s*"([^"]+)"/',  $rawText, $it);
-                preg_match('/"resource_optimization"\s*:\s*"([^"]+)"/',  $rawText, $ro);
-                preg_match('/"additional_notes"\s*:\s*"([^"]+)"/',        $rawText, $an);
-
                 return response()->json([
-                    'disease_name'            => $dn[1]  ?? 'Analysis Complete',
-                    'confidence'              => (int)($cf[1] ?? 0),
-                    'severity'                => $sv[1]  ?? 'Unknown',
-                    'reasoning'               => $rs[1]  ?? $rawText,
-                    'intervention_water'      => $iw[1]  ?? 'Consult your local agricultural officer.',
-                    'intervention_fertilizer' => $if_[1] ?? 'Consult your local agricultural officer.',
-                    'intervention_treatment'  => $it[1]  ?? 'Consult your local agricultural officer.',
-                    'resource_optimization'   => $ro[1]  ?? 'Follow precise local schedules to optimize resource usage.',
-                    'additional_notes'        => $an[1]  ?? '',
+                    'disease_name_en'            => 'Analysis Complete',
+                    'disease_name_ms'            => 'Analisis Selesai',
+                    'confidence'                 => 0,
+                    'severity'                   => 'Unknown',
+                    'reasoning_en'               => 'Error parsing response.',
+                    'reasoning_ms'               => 'Ralat memproses maklum balas.',
+                    'intervention_water_en'      => 'Consult your local agricultural officer.',
+                    'intervention_water_ms'      => 'Sila rujuk pegawai pertanian tempatan.',
+                    'intervention_fertilizer_en' => 'Consult your local agricultural officer.',
+                    'intervention_fertilizer_ms' => 'Sila rujuk pegawai pertanian tempatan.',
+                    'intervention_treatment_en'  => 'Consult your local agricultural officer.',
+                    'intervention_treatment_ms'  => 'Sila rujuk pegawai pertanian tempatan.',
+                    'resource_optimization_en'   => 'Follow precise local schedules to optimize resource usage.',
+                    'resource_optimization_ms'   => 'Ikut jadual tempatan yang tepat untuk mengoptimumkan penggunaan sumber.',
+                    'additional_notes_en'        => '',
+                    'additional_notes_ms'        => '',
                 ]);
             }
 
