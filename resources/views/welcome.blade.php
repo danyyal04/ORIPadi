@@ -271,7 +271,7 @@
         // ─── i18n dictionary ───────────────────────────────────────────────
         const landingI18n = {
             en: {
-                badge: 'Powered by Gemini 2.5 Flash AI',
+                badge: 'Powered by Gemini 2.0 Flash AI',
                 hero_line1: 'Protect Your',
                 hero_line2: 'Paddy Crop',
                 hero_line3: 'with AI',
@@ -300,7 +300,7 @@
                 footer_text: 'A public tool for Malaysian rice farmers',
             },
             ms: {
-                badge: 'Dikuasakan oleh Gemini 2.5 Flash AI',
+                badge: 'Dikuasakan oleh Gemini 2.0 Flash AI',
                 hero_line1: 'Lindungi',
                 hero_line2: 'Tanaman Padi',
                 hero_line3: 'dengan AI',

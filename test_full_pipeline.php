@@ -6,7 +6,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 $apiKey = $_ENV['GEMINI_API_KEY'] ?? '';
-$model  = $_ENV['GEMINI_MODEL']  ?? 'gemini-2.5-flash';
+$model  = $_ENV['GEMINI_MODEL']  ?? 'gemini-2.0-flash';
 
 // Create a tiny 10x10 green test image (simulates a leaf photo)
 $img = imagecreatetruecolor(10, 10);
