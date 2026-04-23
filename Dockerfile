@@ -67,9 +67,8 @@ COPY --from=composer /app .
 RUN chown -R www-data:www-data storage bootstrap/cache \
  && chmod -R 775 storage bootstrap/cache
 
-# Laravel: cache config for production
-RUN php artisan config:cache \
- && php artisan route:cache \
+# Laravel: cache routes and views for production
+RUN php artisan route:cache \
  && php artisan view:cache
 
 # Cloud Run listens on 8080
