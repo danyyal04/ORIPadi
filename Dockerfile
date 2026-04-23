@@ -63,13 +63,20 @@ WORKDIR /var/www/html
 # Copy app from build stage
 COPY --from=composer /app .
 
-# Permissions for storage & cache
-RUN chown -R www-data:www-data storage bootstrap/cache \
- && chmod -R 775 storage bootstrap/cache
+# Default environment variables for production
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV LOG_CHANNEL=stderr
+ENV SESSION_DRIVER=file
+ENV CACHE_STORE=file
 
 # Laravel: cache routes and views for production
 RUN php artisan route:cache \
  && php artisan view:cache
+
+# Permissions for storage & cache (must run AFTER generating cache files)
+RUN chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
 
 # Cloud Run listens on 8080
 EXPOSE 8080
