@@ -55,6 +55,18 @@
                 <video id="liveVideo" autoplay playsinline class="hidden absolute inset-0 w-full h-full object-cover z-0"></video>
                 <canvas id="captureCanvas" class="hidden"></canvas>
 
+                {{-- Scanner Overlay (AR Effect) --}}
+                <div id="scannerOverlay" class="hidden absolute inset-0 z-10 pointer-events-none">
+                    <!-- Targeting Brackets -->
+                    <div class="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-forest-400 opacity-70 rounded-tl-lg"></div>
+                    <div class="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-forest-400 opacity-70 rounded-tr-lg"></div>
+                    <div class="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-forest-400 opacity-70 rounded-bl-lg"></div>
+                    <div class="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-forest-400 opacity-70 rounded-br-lg"></div>
+                    
+                    <!-- Sweeping Laser -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-forest-400 shadow-[0_0_15px_3px_rgba(74,222,128,0.6)] animate-scanner"></div>
+                </div>
+
                 {{-- Image preview --}}
                 <img id="imagePreview" src="" alt="Preview foto padi" class="hidden absolute inset-0 w-full h-full object-cover z-0" />
 
@@ -182,18 +194,22 @@
             <div class="glass-card rounded-3xl p-6 shadow-lg border border-forest-100">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-forest-50 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border border-forest-100">
-                            <svg class="w-7 h-7 text-forest-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 1-6.23-.693L5 14.5m14.8.8 1.402 1.402c1 1-.26 2.28-1.588 1.683a15.751 15.751 0 0 1-15.128 0c-1.328.595-2.588-.684-1.588-1.683L5 14.5"/>
+                        <!-- Radial Confidence Ring -->
+                        <div class="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
+                            <svg class="transform -rotate-90 w-16 h-16">
+                                <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="5" fill="transparent" class="text-forest-100" />
+                                <circle id="confidenceRing" cx="32" cy="32" r="28" stroke="currentColor" stroke-width="5" fill="transparent"
+                                    stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round" class="text-forest-500 transition-all duration-1000 ease-out" />
                             </svg>
+                            <div class="absolute flex flex-col items-center justify-center">
+                                <span id="confidence" class="text-sm font-bold text-forest-800">—%</span>
+                            </div>
                         </div>
                         <div>
                             <p class="text-xs text-forest-500 font-medium uppercase tracking-wider mb-0.5" data-i18n="label_diagnosis">Diagnosis</p>
                             <h2 id="diseaseName" class="text-xl font-extrabold text-forest-900 leading-tight">—</h2>
                             <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                                 <span id="severityBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-healthy shadow-sm">—</span>
-                                <span class="text-xs text-forest-500" data-i18n="label_confidence">Keyakinan:</span>
-                                <span id="confidence" class="text-xs font-bold text-forest-700">—%</span>
                             </div>
                         </div>
                     </div>
@@ -461,6 +477,8 @@ function startLiveScan() {
     const video = document.getElementById('liveVideo');
     video.classList.remove('hidden');
     document.getElementById('liveControls').classList.remove('hidden');
+    const overlay = document.getElementById('scannerOverlay');
+    if (overlay) overlay.classList.remove('hidden');
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
     .then(stream => {
@@ -480,6 +498,8 @@ function stopLiveScan() {
     }
     document.getElementById('liveVideo').classList.add('hidden');
     document.getElementById('liveControls').classList.add('hidden');
+    const overlay = document.getElementById('scannerOverlay');
+    if (overlay) overlay.classList.add('hidden');
     
     // If no file was selected/captured, show placeholder again
     if (!selectedFile) {
@@ -549,7 +569,26 @@ function renderResult(d) {
     const lang = currentLang; // 'ms' or 'en'
     
     document.getElementById('diseaseName').textContent            = d[`disease_name_${lang}`] || 'Tidak Diketahui';
-    document.getElementById('confidence').textContent             = (d.confidence || 0) + '%';
+    
+    // Animate Radial Confidence Ring
+    const confValue = d.confidence || 0;
+    document.getElementById('confidence').textContent = confValue + '%';
+    const ring = document.getElementById('confidenceRing');
+    if (ring) {
+        // circumference is 176
+        const offset = 176 - (176 * confValue / 100);
+        // Add a tiny delay so the CSS transition has time to trigger after un-hiding
+        setTimeout(() => {
+            ring.style.strokeDashoffset = offset;
+            
+            // Adjust color based on confidence
+            ring.classList.remove('text-forest-500', 'text-amber-500', 'text-red-500');
+            if (confValue >= 80) ring.classList.add('text-forest-500');
+            else if (confValue >= 50) ring.classList.add('text-amber-500');
+            else ring.classList.add('text-red-500');
+        }, 50);
+    }
+
     document.getElementById('reasoning').textContent              = d[`reasoning_${lang}`] || '—';
     document.getElementById('interventionWater').textContent      = d[`intervention_water_${lang}`] || '—';
     document.getElementById('interventionFertilizer').textContent = d[`intervention_fertilizer_${lang}`] || '—';
@@ -688,6 +727,12 @@ function resetUI() {
         document.getElementById('voiceText').value = '';
         document.getElementById('additionalNotesCard').classList.add('hidden');
         document.getElementById('newScanBtn').classList.add('hidden');
+        
+        // Reset gauge
+        const ring = document.getElementById('confidenceRing');
+        if (ring) ring.style.strokeDashoffset = 176;
+        document.getElementById('confidence').textContent = '—%';
+
         analyzeBtn.disabled = true;
         analyzeBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/> </svg> Analisis dengan AI';
     }, 400); // match transition duration

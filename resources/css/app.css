@@ -9,3 +9,15 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Computer Vision Scanner Animation */
+@keyframes scanner {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+.animate-scanner {
+    animation: scanner 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
