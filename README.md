@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="public/logo.png" width="120" alt="ORIPadi Logo">
-</p>
 
 <h1 align="center">ORIPadi</h1>
 
