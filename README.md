@@ -46,6 +46,12 @@ ORIPadi follows a modern decoupled architecture where the Laravel backend acts a
 3. **Analysis**: Gemini performs visual reasoning and returns a structured JSON response.
 4. **Output**: The application renders an interactive diagnosis dashboard and offers a downloadable PDF report.
 
+### 📁 Project Structure
+- `app/Http/Controllers/` - Contains core logic (e.g., `PadiAnalysisController`).
+- `resources/views/` - Tailwind CSS & Blade UI components.
+- `routes/web.php` - Application routing.
+- `config/services.php` - External service configurations including the Gemini API.
+
 ---
 
 ## 🚀 Setup & Installation
@@ -84,6 +90,22 @@ Visit `http://localhost:8000` in your browser.
 
 ---
 
+## 🌍 Deployment
+
+For production deployment (e.g., on Laravel Forge, AWS, or Vercel):
+1. Ensure your web server document root points to the `public/` directory.
+2. Update your production `.env` (set `APP_ENV=production` and `APP_DEBUG=false`).
+3. Install dependencies: `composer install --optimize-autoloader --no-dev`.
+4. Build frontend assets: `npm run build`.
+5. Cache configurations for performance:
+   ```bash
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+---
+
 ## 🛠️ Development Commands
 
 The following shortcuts are available via `composer.json`:
@@ -92,6 +114,17 @@ The following shortcuts are available via `composer.json`:
 - `composer run dev`: Starts the server, Vite, and queue listeners concurrently.
 - `composer run test`: Runs the PHPUnit test suite.
 - `php artisan sail up`: Starts the Docker-based development environment.
+
+---
+
+## ❓ Troubleshooting & FAQ
+
+- **Q: Why isn't the camera working on my device?**
+  - **A:** Modern browsers require a secure context to access media devices. Ensure you are accessing the application via `https://` or `localhost`.
+- **Q: I'm getting a Gemini API connection error.**
+  - **A:** Double-check that your `GEMINI_API_KEY` is set correctly in your `.env` file and verify your usage quota on Google AI Studio.
+
+---
 
 ## 📄 License
 
