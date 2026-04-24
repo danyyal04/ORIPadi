@@ -2,7 +2,7 @@
   <img src="public/logo.png" width="120" alt="ORIPadi Logo">
 </p>
 
-<h1 align="center">ORIPadi (Optimized Rice Intervention for Padi)</h1>
+<h1 align="center">ORIPadi</h1>
 
 <p align="center">
   <strong>Advanced AI-Powered Diagnostic Tool for Malaysian Padi Farmers</strong>
