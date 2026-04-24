@@ -625,7 +625,13 @@
             formData.append('_token', '{{ csrf_token() }}');
 
             try {
-                const res = await fetch('/analyze', { method: 'POST', body: formData });
+                const res = await fetch('/analyze', { 
+                    method: 'POST', 
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 const data = await res.json();
 
                 if (!res.ok || data.error) throw new Error(data.error || 'Ralat pelayan');
