@@ -68,21 +68,39 @@ git clone https://github.com/your-username/ORIPadi.git
 cd ORIPadi
 ```
 
-### 2. Automated Setup
-ORIPadi includes a custom setup script to handle dependencies, environment files, keys, and migrations in one go:
+### 2. Install Dependencies
 ```bash
-composer run setup
+composer install
+npm install
 ```
 
-### 3. Configure API Keys
+### 3. Environment Setup
+Create your environment file and generate the application key:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### 4. Configure API Keys
 Open the `.env` file and add your Gemini API Key:
 ```env
 GEMINI_API_KEY=your_api_key_here
 GEMINI_MODEL=gemini-2.5-flash
 ```
 
-### 4. Run the Application
-Start the development server (runs PHP, Vite, and Queue listeners simultaneously):
+### 5. Database & Assets
+```bash
+php artisan migrate
+npm run build
+```
+
+### 6. Run the Application
+You can start the server normally:
+```bash
+php artisan serve
+```
+
+Alternatively, use the built-in shortcut to run PHP, Vite, and Queue listeners simultaneously:
 ```bash
 composer run dev
 ```
@@ -110,21 +128,10 @@ For production deployment (e.g., on Laravel Forge, AWS, or Vercel):
 
 The following shortcuts are available via `composer.json`:
 
-- `composer run setup`: Full project initialization.
 - `composer run dev`: Starts the server, Vite, and queue listeners concurrently.
 - `composer run test`: Runs the PHPUnit test suite.
 - `php artisan sail up`: Starts the Docker-based development environment.
 
----
-
-## ❓ Troubleshooting & FAQ
-
-- **Q: Why isn't the camera working on my device?**
-  - **A:** Modern browsers require a secure context to access media devices. Ensure you are accessing the application via `https://` or `localhost`.
-- **Q: I'm getting a Gemini API connection error.**
-  - **A:** Double-check that your `GEMINI_API_KEY` is set correctly in your `.env` file and verify your usage quota on Google AI Studio.
-
----
 
 ## 📄 License
 
